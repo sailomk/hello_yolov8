@@ -4,7 +4,7 @@ import numpy as np
 from ultralytics import YOLO
 
 # 1. ตั้งค่า URL (Android IP Webcam) และโหลด Model
-url = "http://192.168.200.179:8080/video"
+url = "http://192.168.200.68:8080/video"
 model = YOLO('yolov8n.pt') 
 
 # 2. เริ่มดึง Stream แบบ MJPEG
