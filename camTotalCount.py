@@ -5,7 +5,7 @@ from ultralytics import YOLO
 
 # 1. ตั้งค่าพื้นฐาน
 url = "http://192.168.200.68:8080/video"
-model = YOLO('yolov8n.pt')
+model = YOLO('/Users/admin/Project/count_obj/runs/detect/train4/weights/best.pt')
 
 # กำหนดเส้นแนวตั้ง (Vertical Line): สมมติที่ x = 400 
 # (ปรับตามความกว้างของภาพคุณ เช่น ถ้าภาพกว้าง 1280 อาจตั้งที่ 640)

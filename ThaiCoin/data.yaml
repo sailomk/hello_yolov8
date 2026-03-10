@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 6
+names: ['1-baht', '10-baht', '2-baht', '25-satang', '5-baht', '50-satang']
+
+roboflow:
+  workspace: a-r7rfa
+  project: thai-coin-detect-ddoje
+  version: 9
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/a-r7rfa/thai-coin-detect-ddoje/dataset/9

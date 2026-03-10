@@ -69,6 +69,8 @@ class MJPEGStreamReader:
                     try:
                         # อ่านข้อมูลจาก stream
                         chunk = self.stream.read(4096)
+                        #print(chunk.status)  
+                        
                         if not chunk:
                             print("⚠️ Stream สิ้นสุดลง")
                             break
@@ -163,6 +165,7 @@ class ThaiCoinDetector:
         if model_path and model_path != "":
             print(f"⚙️ กำลังโหลดโมเดล: {model_path}")
             self.model = YOLO(model_path)
+            #print(self.model.names)
         else:
             print("⚙️ กำลังโหลดโมเดลพื้นฐาน YOLOv8n...")
             self.model = YOLO('yolov8n.pt')
@@ -192,6 +195,8 @@ class ThaiCoinDetector:
         
         # เก็บสถิติ
         self.reset_stats()
+
+
         
     def _get_optimal_device(self):
         """เลือก device ที่เหมาะสมสำหรับการรันโมเดล"""
@@ -245,10 +250,12 @@ class ThaiCoinDetector:
         
         try:
             # รัน YOLO detection โดยไม่ใช้ half precision
-            results = self.model.predict(frame, stream=False, verbose=False, imgsz=640)
-            print(f"🔍 ตรวจจับเสร็จใน {time.time() - start_time:.2f} วินาที, พบ {len(results)} ผลลัพธ์")
+            #results = self.model.predict(frame, stream=False, verbose=False, imgsz=640)
+            results = self.model.track(frame, persist= True , stream=False, verbose=False, imgsz=640)
             
-            print(f"📋 names: {results[0].boxes.cls}")  
+            #print(f"🔍 ตรวจจับเสร็จใน {time.time() - start_time:.2f} วินาที, พบ {len(results)} ผลลัพธ์")
+            
+            #print(f"📋 names: {results[0].boxes.cls}")  
             # วาดผลลัพธ์บนภาพ
             for result in results:
                 boxes = result.boxes
@@ -304,7 +311,7 @@ class ThaiCoinDetector:
                             cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
                             
                             # สร้างข้อความ
-                            text = f"{label} ({value}฿)"
+                            text = f"{label} ({value})"
                             
                             # วาดพื้นหลังข้อความ
                             (text_w, text_h), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
@@ -437,7 +444,7 @@ class ThaiCoinDetector:
                 }
                 color = color_map.get(coin_type, (255, 255, 255))
                 
-                text = f"  {coin_type}: {count} (={value*count}฿)"
+                text = f"  {coin_type}: {count} (={value*count} Baht)"
                 cv2.putText(frame, text, (panel_x+20, y_pos), 
                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
                 y_pos += 20
@@ -503,7 +510,7 @@ def main():
     ฟังก์ชันหลักสำหรับเชื่อมต่อ MJPEG stream และเริ่มการตรวจจับ
     """
     # URL ของกล้อง MJPEG
-    stream_url = "http://192.168.200.68:8080/video"
+    stream_url = "http://192.168.200.221:4747/video"
     
     print("=" * 60)
     print("💰 Thai Coin Detector with MJPEG Stream")
@@ -556,7 +563,7 @@ def main():
     
     # เริ่มต้นตัวตรวจจับเหรียญ
     try:
-        detector = ThaiCoinDetector(model_path="")  # เปลี่ยนเป็น thai_coin_model.pt ถ้ามี
+        detector = ThaiCoinDetector(model_path="best.pt")  # เปลี่ยนเป็น thai_coin_model.pt ถ้ามี
     except Exception as e:
         print(f"❌ ไม่สามารถโหลดโมเดล: {e}")
         stream_reader.stop()
@@ -581,7 +588,6 @@ def main():
             if frame is not None and frame.size > 0:
                 # ตรวจจับเหรียญ
                 processed_frame, detection_info = detector.process_frame(frame.copy())
-                
                 if processed_frame is not None and processed_frame.size > 0:
                     # วาดข้อมูลแสดงผล
                     processed_frame = detector.draw_info_panel(
